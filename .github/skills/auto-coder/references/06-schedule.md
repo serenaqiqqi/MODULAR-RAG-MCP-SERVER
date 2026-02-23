@@ -146,7 +146,7 @@
 |---------|---------|------|---------|------|
 | I1 | E2E：MCP Client 侧调用模拟 | [x] | 2026-02-23 | 7个E2E测试+import死锁修复+非阻塞readline |
 | I2 | E2E：Dashboard 冒烟测试 | [x] | 2026-02-24 | 6个页面冒烟测试+AppTest框架+mock服务 |
-| I3 | 完善 README（运行说明 + MCP + Dashboard） | [ ] | - | |
+| I3 | 完善 README（运行说明 + MCP + Dashboard） | [x] | 2026-02-24 | 快速开始+配置说明+MCP配置+Dashboard指南+测试+FAQ |
 | I4 | 清理接口一致性（契约测试补齐） | [ ] | - | |
 | I5 | 全链路 E2E 验收 | [ ] | - | |
 
