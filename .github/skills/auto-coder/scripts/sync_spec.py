@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Spec Sync — splits DEV_SPEC.md into chapter files under auto-coder/specs/.
+Spec Sync — splits DEV_SPEC.md into chapter files under auto-coder/references/.
 
 Usage:
     python scripts/sync_spec.py [--force]
@@ -62,7 +62,7 @@ def sync(force: bool = False):
     skill_dir = Path(__file__).parent.parent          # auto-coder/
     repo_root = skill_dir.parent.parent.parent        # project root
     dev_spec  = repo_root / "DEV_SPEC.md"
-    specs_dir = skill_dir / "specs"
+    specs_dir = skill_dir / "references"
     hash_file = skill_dir / ".spec_hash"
 
     if not dev_spec.exists():

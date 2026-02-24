@@ -2415,12 +2415,13 @@ dashboard:
   - **职责边界说明**：
     - `libs.splitter`：纯文本切分工具（`str → List[str]`），不涉及业务对象
     - `DocumentChunker`：业务适配器（`Document对象 → List[Chunk对象]`），添加业务逻辑
-  - **5 个增值功能**：
+  - **6 个增值功能**：
     1. **Chunk ID 生成**：为每个文本片段生成唯一且确定性的 ID（格式：`{doc_id}_{index:04d}_{hash_8chars}`）
     2. **元数据继承**：将 Document.metadata 复制到每个 Chunk.metadata（source_path, doc_type, title 等）
     3. **添加 chunk_index**：记录 chunk 在文档中的序号（从 0 开始），用于排序和定位
     4. **建立 source_ref**：记录 Chunk.source_ref 指向父 Document.id，支持溯源
-    5. **类型转换**：将 libs.splitter 的 `List[str]` 转换为符合 core.types 契约的 `List[Chunk]` 对象
+    5. **图片引用按需分发**：扫描每个 chunk 文本中的 `[IMAGE: {id}]` 占位符，从 `Document.metadata["images"]` 中提取该 chunk 实际引用的 ImageRef，写入 `chunk.metadata["images"]`（仅含该 chunk 引用的子集）和 `chunk.metadata["image_refs"]`（image_id 列表）。无占位符的 chunk 不含 `images` 字段。⚠️ 不可简单整体继承或丢弃文档级 `images`，否则下游 C7 ImageCaptioner 将无法定位图片路径。
+    6. **类型转换**：将 libs.splitter 的 `List[str]` 转换为符合 core.types 契约的 `List[Chunk]` 对象
 - **修改文件**：
   - `src/ingestion/chunking/document_chunker.py`
   - `src/ingestion/chunking/__init__.py`
@@ -2429,13 +2430,14 @@ dashboard:
   - `DocumentChunker` 类
   - `__init__(settings: Settings)`：通过 SplitterFactory 获取配置的 splitter 实例
   - `split_document(document: Document) -> List[Chunk]`：完整的转换流程
-  - `_generate_chunk_id(doc_id: str, index: int) -> str`：生成稳定 Chunk ID
-  - `_inherit_metadata(document: Document, chunk_index: int) -> dict`：元数据继承逻辑
+  - `_generate_chunk_id(doc_id: str, index: int, text: str) -> str`：生成稳定 Chunk ID
+  - `_inherit_metadata(document: Document, chunk_index: int, chunk_text: str) -> dict`：元数据继承 + 图片引用按需分发逻辑（需要 chunk_text 来扫描 `[IMAGE: id]` 占位符）
 - **验收标准**：
   - **配置驱动**：通过修改 settings.yaml 中的 splitter 配置（如 chunk_size），产出的 chunk 数量和长度发生相应变化
   - **ID 唯一性**：每个 Chunk 的 ID 在整个文档中唯一
   - **ID 确定性**：同一 Document 对象重复切分产生相同的 Chunk ID 序列
   - **元数据完整性**：Chunk.metadata 包含所有 Document.metadata 字段 + chunk_index 字段
+  - **图片分发正确性**：含 `[IMAGE: id]` 占位符的 chunk 其 `metadata["images"]` 仅包含该 chunk 引用的图片子集；不含占位符的 chunk 无 `images` 字段；`metadata["image_refs"]` 列表与占位符一致
   - **溯源链接**：所有 Chunk.source_ref 正确指向父 Document.id
   - **类型契约**：输出的 Chunk 对象符合 `core/types.py` 中的 Chunk 定义（可序列化、字段完整）
 - **测试方法**：`pytest -q tests/unit/test_document_chunker.py`（使用 FakeSplitter 隔离测试，无需真实 LLM/外部依赖）。
