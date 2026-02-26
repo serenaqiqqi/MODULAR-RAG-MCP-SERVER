@@ -253,6 +253,9 @@ class BM25Indexer:
         if not query_terms:
             raise ValueError("query_terms cannot be empty")
         
+        # Lowercase query terms to match index (SparseEncoder lowercases during build)
+        query_terms = [t.lower() for t in query_terms]
+        
         # Calculate BM25 scores for all documents
         scores: Dict[str, float] = {}
         
@@ -304,6 +307,59 @@ class BM25Indexer:
             trace: Optional TraceContext for observability
         """
         self.build(term_stats, collection, trace)
+
+    def add_documents(
+        self,
+        term_stats: List[Dict[str, Any]],
+        collection: str = "default",
+        doc_id: Optional[str] = None,
+        trace: Optional[Any] = None,
+    ) -> None:
+        """Incrementally add documents to the BM25 index.
+
+        Loads the existing index (if any), optionally removes old postings
+        for the given *doc_id* (to support re-ingestion), merges the new
+        term stats, recomputes IDF scores, and saves.
+
+        Args:
+            term_stats: New term statistics from SparseEncoder.encode().
+            collection: Collection name.
+            doc_id: If provided, remove existing postings whose chunk_id
+                starts with this prefix before adding new ones (idempotent
+                re-ingestion).
+            trace: Optional TraceContext.
+        """
+        if not term_stats:
+            return
+
+        self._validate_term_stats(term_stats)
+
+        # Load existing index (ignore if missing – will start fresh)
+        if not self._index:
+            self.load(collection)
+
+        # Remove stale postings for this document (re-ingest case)
+        if doc_id and self._index:
+            self.remove_document(doc_id, collection)
+
+        # Reconstruct existing term_stats from current index postings
+        existing_stats: Dict[str, Dict[str, Any]] = {}  # chunk_id -> stat
+        for term, term_data in self._index.items():
+            for posting in term_data["postings"]:
+                cid = posting["chunk_id"]
+                if cid not in existing_stats:
+                    existing_stats[cid] = {
+                        "chunk_id": cid,
+                        "term_frequencies": {},
+                        "doc_length": posting["doc_length"],
+                    }
+                existing_stats[cid]["term_frequencies"][term] = posting["tf"]
+
+        # Merge: existing + new
+        combined = list(existing_stats.values()) + list(term_stats)
+
+        # Rebuild full index from combined stats
+        self.build(combined, collection, trace)
 
     def remove_document(
         self,

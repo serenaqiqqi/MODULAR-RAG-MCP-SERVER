@@ -59,6 +59,11 @@ ENV/
 env.bak/
 venv.bak/
 
+# QA Test credentials and config backups
+config/test_credentials.yaml
+config/settings.yaml.qa_backup
+config/settings.yaml.bak
+
 # IDE
 .idea/
 .vscode/
@@ -99,3 +104,4 @@ traces.jsonl
 .env.local
 .env.*.local
 secrets.yaml
+nonexistent_traces.jsonl/

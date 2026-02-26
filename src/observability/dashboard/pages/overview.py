@@ -21,16 +21,23 @@ def _safe_collection_stats() -> Dict[str, Any]:
     Returns empty dict on failure so the page still renders.
     """
     try:
-        from src.core.settings import load_settings
-        from src.libs.vector_store.vector_store_factory import VectorStoreFactory
+        from src.core.settings import load_settings, resolve_path
+        import chromadb
+        from chromadb.config import Settings as ChromaSettings
 
         settings = load_settings()
-        store = VectorStoreFactory.create(settings)
-        collections = store.list_collections() if hasattr(store, "list_collections") else []
+        persist_dir = str(
+            resolve_path(settings.vector_store.persist_directory)
+        )
+        client = chromadb.PersistentClient(
+            path=persist_dir,
+            settings=ChromaSettings(anonymized_telemetry=False, allow_reset=True),
+        )
         stats: Dict[str, Any] = {}
-        for name in collections:
-            count = store.count(collection_name=name) if hasattr(store, "count") else "?"
-            stats[name] = {"chunk_count": count}
+        for col in client.list_collections():
+            name = col.name if hasattr(col, "name") else str(col)
+            collection = client.get_collection(name)
+            stats[name] = {"chunk_count": collection.count()}
         return stats
     except Exception:
         return {}
@@ -84,6 +91,9 @@ def render() -> None:
     traces_path = resolve_path("logs/traces.jsonl")
     if traces_path.exists():
         line_count = sum(1 for _ in traces_path.open(encoding="utf-8"))
-        st.metric("Total traces", line_count)
+        if line_count > 0:
+            st.metric("Total traces", line_count)
+        else:
+            st.info("No traces recorded yet. Run a query or ingestion first.")
     else:
         st.info("No traces recorded yet. Run a query or ingestion first.")

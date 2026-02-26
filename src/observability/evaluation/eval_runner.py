@@ -307,7 +307,6 @@ class EvalRunner:
             results = self.hybrid_search.search(
                 query=query,
                 top_k=top_k,
-                filters={"collection": collection} if collection else None,
             )
             return results if isinstance(results, list) else results.results
         except Exception as exc:

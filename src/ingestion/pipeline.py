@@ -437,10 +437,20 @@ class IngestionPipeline:
             _t0_storage = time.monotonic()
             vector_ids = self.vector_upserter.upsert(chunks, dense_vectors, trace)
             logger.info(f"      Stored {len(vector_ids)} vectors")
-            
+
+            # Align BM25 chunk_ids with Chroma vector IDs so the SparseRetriever
+            # can look up BM25 hits in the vector store after retrieval.
+            for stat, vid in zip(sparse_stats, vector_ids):
+                stat["chunk_id"] = vid
+
             # 6b: BM25 Index
             logger.info("  6b. BM25 Index...")
-            self.bm25_indexer.build(sparse_stats, collection=self.collection, trace=trace)
+            self.bm25_indexer.add_documents(
+                sparse_stats,
+                collection=self.collection,
+                doc_id=document.id,
+                trace=trace,
+            )
             logger.info(f"      Index built for {len(sparse_stats)} documents")
             
             # 6c: Register images in image storage index

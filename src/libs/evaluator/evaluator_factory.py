@@ -80,7 +80,14 @@ class EvaluatorFactory:
             RuntimeError: If provider initialization fails.
         """
         try:
-            evaluation_settings = settings.evaluation
+            # Accept either full Settings (with .evaluation attr) or
+            # a bare EvaluationSettings object directly.
+            if hasattr(settings, "evaluation"):
+                evaluation_settings = settings.evaluation
+            elif hasattr(settings, "provider") and hasattr(settings, "enabled"):
+                evaluation_settings = settings
+            else:
+                raise AttributeError("settings has no 'evaluation' attribute")
             if evaluation_settings is None:
                 raise AttributeError("settings.evaluation is None")
             provider_name = evaluation_settings.provider.lower()

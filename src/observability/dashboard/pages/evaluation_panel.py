@@ -48,6 +48,16 @@ def render() -> None:
             help="Select which evaluator backend to use.",
         )
 
+    # Show info/warning based on selected backend
+    if backend in ("custom", "composite"):
+        st.info(
+            "ℹ️ **Custom Evaluator** 尚未完成数据集准备，当前仅为预留接口。"
+            "Custom Evaluator 需要在 Golden Test Set 中填写 `expected_chunk_ids` "
+            "作为 ground truth 才能计算 hit_rate / MRR 指标。"
+            "目前建议使用 **ragas** 后端进行评估。",
+            icon="🚧",
+        )
+
     with col2:
         top_k = st.number_input(
             "Top-K",
@@ -152,25 +162,30 @@ def _execute_evaluation(
     This function imports heavy dependencies lazily to keep the
     dashboard responsive when the page is not used.
     """
+    from dataclasses import replace as dc_replace
+
     from src.core.settings import load_settings
     from src.libs.evaluator.evaluator_factory import EvaluatorFactory
     from src.observability.evaluation.eval_runner import EvalRunner, load_test_set
 
     settings = load_settings()
 
-    # Override evaluator provider from UI selection
+    # Override evaluator provider from UI selection — build a new full
+    # Settings object so that RagasEvaluator can still access .llm / .embedding.
     eval_settings = settings.evaluation
-    # Create a modified settings-like object for the factory
-    override = type(eval_settings)(
+    overridden_eval = type(eval_settings)(
         enabled=True,
         provider=backend,
         metrics=eval_settings.metrics if hasattr(eval_settings, "metrics") else [],
     )
+    # Replace only the evaluation sub-config in the full settings
+    settings_with_override = dc_replace(settings, evaluation=overridden_eval)
 
-    evaluator = EvaluatorFactory.create(override)
+    evaluator = EvaluatorFactory.create(settings_with_override)
 
     # Try to create HybridSearch (optional – works without if not configured)
-    hybrid_search = _try_create_hybrid_search(settings)
+    target_collection = collection or "default"
+    hybrid_search = _try_create_hybrid_search(settings, target_collection)
 
     runner = EvalRunner(
         settings=settings,
@@ -187,16 +202,45 @@ def _execute_evaluation(
     return report.to_dict()
 
 
-def _try_create_hybrid_search(settings: Any) -> Any:
+def _try_create_hybrid_search(settings: Any, collection: str = "default") -> Any:
     """Attempt to create a HybridSearch instance.
 
     Returns None if required dependencies are not available
     (e.g., no indexed data).
     """
     try:
-        from src.core.query_engine.hybrid_search import HybridSearch
+        from src.core.query_engine.query_processor import QueryProcessor
+        from src.core.query_engine.hybrid_search import create_hybrid_search
+        from src.core.query_engine.dense_retriever import create_dense_retriever
+        from src.core.query_engine.sparse_retriever import create_sparse_retriever
+        from src.ingestion.storage.bm25_indexer import BM25Indexer
+        from src.libs.embedding.embedding_factory import EmbeddingFactory
+        from src.libs.vector_store.vector_store_factory import VectorStoreFactory
 
-        return HybridSearch(settings)
+        vector_store = VectorStoreFactory.create(
+            settings, collection_name=collection,
+        )
+        embedding_client = EmbeddingFactory.create(settings)
+        dense_retriever = create_dense_retriever(
+            settings=settings,
+            embedding_client=embedding_client,
+            vector_store=vector_store,
+        )
+        bm25_indexer = BM25Indexer(index_dir=f"data/db/bm25/{collection}")
+        sparse_retriever = create_sparse_retriever(
+            settings=settings,
+            bm25_indexer=bm25_indexer,
+            vector_store=vector_store,
+        )
+        sparse_retriever.default_collection = collection
+
+        query_processor = QueryProcessor()
+        return create_hybrid_search(
+            settings=settings,
+            query_processor=query_processor,
+            dense_retriever=dense_retriever,
+            sparse_retriever=sparse_retriever,
+        )
     except Exception as exc:
         logger.warning("Could not create HybridSearch: %s", exc)
         return None
