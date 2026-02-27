@@ -50,27 +50,50 @@ class OpenAILLM(BaseLLM):
         
         Args:
             settings: Application settings containing LLM configuration.
-            api_key: Optional API key override (falls back to env var OPENAI_API_KEY).
+            api_key: Optional API key override (falls back to settings.llm.api_key or env var).
             base_url: Optional base URL override.
             **kwargs: Additional configuration overrides.
         
         Raises:
             ValueError: If API key is not provided and not found in environment.
+        
+        Note:
+            When azure_endpoint is present in settings, the provider automatically
+            constructs the Azure-compatible OpenAI URL and uses api-key auth header.
         """
         self.model = settings.llm.model
         self.default_temperature = settings.llm.temperature
         self.default_max_tokens = settings.llm.max_tokens
         
-        # API key: explicit > env var
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        # API key: explicit > settings > env var
+        self.api_key = (
+            api_key
+            or getattr(settings.llm, 'api_key', None)
+            or os.environ.get("OPENAI_API_KEY")
+        )
         if not self.api_key:
             raise ValueError(
-                "OpenAI API key not provided. Set OPENAI_API_KEY environment variable "
-                "or pass api_key parameter."
+                "OpenAI API key not provided. Set in settings.yaml (llm.api_key), "
+                "OPENAI_API_KEY environment variable, or pass api_key parameter."
             )
         
-        # Base URL: explicit > default
-        self.base_url = base_url or self.DEFAULT_BASE_URL
+        # Azure-compatible mode detection
+        azure_endpoint = getattr(settings.llm, 'azure_endpoint', None)
+        self.api_version = getattr(settings.llm, 'api_version', None)
+        
+        if base_url:
+            self.base_url = base_url
+            self._use_azure_auth = False
+        elif azure_endpoint:
+            # Azure-compatible mode: construct deployment-based URL
+            deployment = getattr(settings.llm, 'deployment_name', None) or self.model
+            self.base_url = f"{azure_endpoint.rstrip('/')}/openai/deployments/{deployment}"
+            self._use_azure_auth = True
+            if not self.api_version:
+                self.api_version = "2024-02-15-preview"
+        else:
+            self.base_url = self.DEFAULT_BASE_URL
+            self._use_azure_auth = False
         
         # Store any additional kwargs for future use
         self._extra_config = kwargs
@@ -162,10 +185,19 @@ class OpenAILLM(BaseLLM):
         import httpx
         
         url = f"{self.base_url.rstrip('/')}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
+        if self.api_version:
+            url += f"?api-version={self.api_version}"
+        
+        if self._use_azure_auth:
+            headers = {
+                "api-key": self.api_key,
+                "Content-Type": "application/json",
+            }
+        else:
+            headers = {
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+            }
         payload = {
             "model": model,
             "messages": messages,

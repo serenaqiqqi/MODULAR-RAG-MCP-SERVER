@@ -49,29 +49,48 @@ class OpenAIEmbedding(BaseEmbedding):
         
         Args:
             settings: Application settings containing Embedding configuration.
-            api_key: Optional API key override (falls back to env var OPENAI_API_KEY).
+            api_key: Optional API key override (falls back to settings.embedding.api_key or env var).
             base_url: Optional base URL override.
             **kwargs: Additional configuration overrides.
         
         Raises:
             ValueError: If API key is not provided and not found in environment.
+        
+        Note:
+            When azure_endpoint is present in settings, the provider automatically
+            constructs the Azure-compatible OpenAI URL and uses api-key auth.
         """
         self.model = settings.embedding.model
         
         # Extract optional dimensions setting
         self.dimensions = getattr(settings.embedding, 'dimensions', None)
         
-        # API key: explicit > env var
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        # API key: explicit > settings > env var
+        self.api_key = (
+            api_key
+            or getattr(settings.embedding, 'api_key', None)
+            or os.environ.get("OPENAI_API_KEY")
+        )
         if not self.api_key:
             raise ValueError(
-                "OpenAI API key not provided. Set OPENAI_API_KEY environment variable "
-                "or pass api_key parameter."
+                "OpenAI API key not provided. Set in settings.yaml (embedding.api_key), "
+                "OPENAI_API_KEY environment variable, or pass api_key parameter."
             )
         
-        # Base URL: explicit > settings > default
+        # Azure-compatible mode detection
+        azure_endpoint = getattr(settings.embedding, 'azure_endpoint', None)
+        self.api_version = getattr(settings.embedding, 'api_version', None)
+        self._use_azure_auth = False
+        
         if base_url:
             self.base_url = base_url
+        elif azure_endpoint:
+            # Azure-compatible mode: construct deployment-based URL
+            deployment = getattr(settings.embedding, 'deployment_name', None) or self.model
+            self.base_url = f"{azure_endpoint.rstrip('/')}/openai/deployments/{deployment}"
+            self._use_azure_auth = True
+            if not self.api_version:
+                self.api_version = "2024-02-15-preview"
         else:
             settings_base_url = getattr(settings.embedding, 'base_url', None)
             self.base_url = settings_base_url if settings_base_url else self.DEFAULT_BASE_URL
@@ -113,7 +132,16 @@ class OpenAIEmbedding(BaseEmbedding):
             ) from e
         
         # Initialize OpenAI client
-        client = OpenAI(api_key=self.api_key, base_url=self.base_url)
+        client_kwargs = {
+            "api_key": self.api_key,
+            "base_url": self.base_url,
+        }
+        # Azure-compatible mode: add api-version query param and api-key header
+        if self._use_azure_auth and self.api_version:
+            client_kwargs["default_query"] = {"api-version": self.api_version}
+            client_kwargs["default_headers"] = {"api-key": self.api_key}
+        
+        client = OpenAI(**client_kwargs)
         
         # Prepare API call parameters
         api_params = {
@@ -122,8 +150,9 @@ class OpenAIEmbedding(BaseEmbedding):
         }
         
         # Add dimensions if specified (only for text-embedding-3-* models)
+        # text-embedding-ada-002 does NOT support the dimensions parameter
         dimensions = kwargs.get("dimensions", self.dimensions)
-        if dimensions is not None:
+        if dimensions is not None and self.model.startswith("text-embedding-3"):
             api_params["dimensions"] = dimensions
         
         # Call OpenAI API
