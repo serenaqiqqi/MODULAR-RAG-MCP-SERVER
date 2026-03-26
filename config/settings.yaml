@@ -14,6 +14,7 @@ llm:
   api_key: "YOUR_API_KEY_HERE"
   temperature: 0.0
   max_tokens: 4096
+  #deployment_name + azure_endpoint + api_version：用于 Azure OpenAI 兼容参数。
 
 # =============================================================================
 # Embedding Configuration
@@ -30,11 +31,12 @@ embedding:
   # OpenAI-specific settings (if provider is openai):
   # api_key: "YOUR_API_KEY_HERE"
 
+
 # =============================================================================
 # Vision LLM Configuration (for Image Captioning)
 # =============================================================================
 vision_llm:
-  enabled: true  # Set to true to enable vision capabilities
+  enabled: true  # 图像能力默认开启（用于图片描述/理解）。
   provider: "openai"  # Options: openai, azure, ollama
   model: "gpt-4o"  # Options: gpt-4o, gpt-4-vision-preview (OpenAI), llava (Ollama)
   # Azure-compatible settings (azure_endpoint triggers Azure compat mode):
@@ -51,62 +53,63 @@ vision_llm:
 # =============================================================================
 vector_store:
   provider: "chroma"  # Options: chroma, qdrant, pinecone
-  persist_directory: "./data/db/chroma"
-  collection_name: "knowledge_hub"
+  persist_directory: "./data/db/chroma" #向量数据本地落盘。
+  collection_name: "knowledge_hub" #知识集合名，后续检索和写入都围绕它。
 
 # =============================================================================
 # Retrieval Configuration
 # =============================================================================
 retrieval:
-  dense_top_k: 20
-  sparse_top_k: 20
-  fusion_top_k: 10
-  rrf_k: 60  # RRF constant
+  dense_top_k: 20 #分别取 20 条候选。
+  sparse_top_k: 20 #分别取 20 条候选。
+  fusion_top_k: 10 #合并后取 10 条候选。
+  rrf_k: 60  # RRF 常数，影响融合时名次衰减强度。 RRF(Reciprocal Rank Fusion)算法，不依赖各路分数的绝对值，而是基于排名的倒数进行加权融合。
 
 # =============================================================================
 # Rerank Configuration
 # =============================================================================
 rerank:
-  enabled: false
+  enabled: false #是否启用重排，默认不启用。
   provider: "none"  # Options: none, cross_encoder, llm
-  model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
-  top_k: 5
+  model: "cross-encoder/ms-marco-MiniLM-L-6-v2" #重排模型，默认不启用。
+  top_k: 5 #重排后取 5 条候选。
 
 # =============================================================================
 # Evaluation Configuration
 # =============================================================================
 evaluation:
-  enabled: false
+  enabled: false #是否启用评估，默认不启用。
   provider: "custom"  # Options: ragas, deepeval, custom
   metrics:
-    - "hit_rate"
-    - "mrr"
-    - "faithfulness"
+    - "hit_rate" #命中率
+    - "mrr" #平均倒数排名
+    - "faithfulness" #忠实度
 
 # =============================================================================
 # Observability Configuration
 # =============================================================================
 observability:
-  log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
-  trace_enabled: true
-  trace_file: "./logs/traces.jsonl"
-  structured_logging: true
+  log_level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR 日志级别，默认INFO。
+  trace_enabled: true #是否启用追踪，默认启用。
+  trace_file: "./logs/traces.jsonl" #追踪文件路径。
+  structured_logging: true #是否启用结构化日志，默认启用。
 
 # =============================================================================
 # Ingestion Configuration
 # =============================================================================
 ingestion:
-  chunk_size: 1000
-  chunk_overlap: 200
-  splitter: "recursive"  # Options: recursive, semantic, fixed_length
-  batch_size: 100
+  chunk_size: 1000 #分块大小，默认1000。
+  chunk_overlap: 200 
+  splitter: "recursive"  # Options: recursive, semantic, fixed_length 通常是默认最稳的文本切分策略。
+  batch_size: 100 #批量处理大小，默认100。
   
   # Chunk Refiner Configuration (C5)
   chunk_refiner:
-    use_llm: true  # Set to true to enable LLM-based refinement (requires LLM config)
+    use_llm: true  # Set to true to enable LLM-based refinement (requires LLM config)是否启用LLM重排，默认启用。
     # When use_llm is false or LLM call fails, falls back to rule-based refinement
   
   # Metadata Enricher Configuration (C6)
   metadata_enricher:
-    use_llm: true  # Set to true to enable LLM-based enrichment (requires LLM config)
+    use_llm: true  # Set to true to enable LLM-based enrichment (requires LLM config)是否启用LLM元数据增强，默认启用。
     # When use_llm is false or LLM call fails, falls back to rule-based enrichment
+  

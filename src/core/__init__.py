@@ -19,3 +19,4 @@ __all__ = [
     "Vector",
     "SparseVector"
 ]
+#当别人写 from src.core import * 时，只导出这些名字。
