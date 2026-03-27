@@ -58,7 +58,7 @@ class BaseLLM(ABC):
         self,
         messages: List[Message],
         trace: Optional[Any] = None,
-        **kwargs: Any,
+        **kwargs: Any, #这个参数表示提供商特定的参数（温度，最大令牌数等）。
     ) -> ChatResponse:
         """Generate a chat completion response.
         
