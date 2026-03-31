@@ -110,10 +110,10 @@ class RecursiveSplitter(BaseSplitter):
         self._splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
-            separators=self.separators,
-            length_function=len,
-            is_separator_regex=False,
-            **kwargs,
+            separators=self.separators, #按什么顺序切
+            length_function=len, #按什么长度切
+            is_separator_regex=False, #是否用正则表达式切
+            **kwargs, #其他参数
         )
     
     def split_text(
