@@ -259,6 +259,14 @@ class IngestionPipeline:
 
             _t0 = time.monotonic()  # 加载开始单调时间
             document = self.loader.load(str(file_path))  # PDF → Document（文本+图片元数据）
+            """
+            document的类型
+              return Document(
+                id=doc_id,
+                text=text_content,
+                metadata=metadata
+            )
+            """
             _elapsed = (time.monotonic() - _t0) * 1000.0  # 耗时毫秒
 
             text_preview = document.text[:200].replace('\n', ' ') + "..." if len(document.text) > 200 else document.text  # 预览截断
