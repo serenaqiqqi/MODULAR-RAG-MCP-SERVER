@@ -1,13 +1,13 @@
 # 📚 Project Learning Progress
 
-> Last updated: 2026-03-04
-> 总进度: 0/45 知识点已掌握
+> Last updated: 2026-04-10
+> 总进度: 4/45 知识点已掌握
 
 ## Domain Summary
 
 | 知识域 | 子知识点 | 已掌握 | 已学习 | 平均分 | 状态 |
 |--------|----------|--------|--------|--------|------|
-| D1 RAG Pipeline 整体架构 | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
+| D1 RAG Pipeline 整体架构 | 5 | 4/5 | 5/5 | 7.1 | 🔶 学习中 |
 | D2 Ingestion Pipeline | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
 | D3 Hybrid Search & Retrieval | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
 | D4 Rerank 机制 | 4 | 0/4 | 0/4 | - | ⬜ 未学习 |
@@ -24,11 +24,11 @@
 
 | ID | 知识点 | 已学 | 最高分 | 最近分 | 状态 |
 |----|--------|------|--------|--------|------|
-| D1.1 | 端到端数据流 | 0 | - | - | ⬜ 未学习 |
-| D1.2 | 三层架构设计 | 0 | - | - | ⬜ 未学习 |
-| D1.3 | Pipeline 组装 | 0 | - | - | ⬜ 未学习 |
-| D1.4 | 核心数据类型 | 0 | - | - | ⬜ 未学习 |
-| D1.5 | 入口脚本设计 | 0 | - | - | ⬜ 未学习 |
+| D1.1 | 端到端数据流 | 1 | 7.5 | 7.5 | ✅ 掌握 |
+| D1.2 | 三层架构设计 | 1 | 7.5 | 7.5 | ✅ 掌握 |
+| D1.3 | Pipeline 组装 | 1 | 8 | 8 | ✅ 掌握 |
+| D1.4 | 核心数据类型 | 1 | 5.5 | 5.5 | 🔶 学习中 |
+| D1.5 | 入口脚本设计 | 1 | 7 | 7 | ✅ 掌握 |
 
 ### D2 Ingestion Pipeline
 
@@ -119,3 +119,13 @@
 
 | # | Date | 知识点 ID | 知识点 | 问题 | 评分 | 追问轮数 | 薄弱点 |
 |---|------|-----------|--------|------|------|----------|--------|
+| 1 | 2026-04-10 | D1.1 | 端到端数据流 | ingest/query 主链路、MCP 生成路径、collection 与 BM25 路径 | 7.5 | 多轮 | 已补充 Hybrid 表述与 query 无 LLM |
+| 2 | 2026-04-10 | D1.2 | 三层架构设计 | core / ingestion / libs 职责与依赖方向 | 7.5 | 多轮 | 曾混淆「RAG 核心」归属；已区分建库 vs 查库 |
+| 3 | 2026-04-10 | D1.3 | Pipeline 组装 | settings.yaml、load_settings、工厂组装、retrieval vs ingestion | 8 | 1 | 无显著薄弱项 |
+| 4 | 2026-04-10 | D1.4 | 核心数据类型 | Document/Chunk/ChunkRecord/ProcessedQuery/RetrievalResult | 5.5 | 1 | Document/Chunk 角色与 metadata 必填 source_path |
+| 5 | 2026-04-10 | D1.5 | 入口脚本设计 | ingest / query / evaluate 参数与退出码 | 7 | 0 | 以讲解为主；可自行重做 D1.5 自测题巩固 |
+
+## 备注
+
+- 进度文件路径：`.github/skills/project-learner/references/LEARNING_PROGRESS.md`；换设备后请通过 **Git pull** 或同步整个仓库以延续进度。
+- 建议下一步：**复习 D1.4**（`src/core/types.py`）或开始 **D2.1 Ingestion 整体流程**。
