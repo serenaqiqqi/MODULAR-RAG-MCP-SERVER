@@ -1,6 +1,6 @@
 # 📚 Project Learning Progress
 
-> Last updated: 2026-04-10
+> Last updated: 2026-04-11
 > 总进度: 4/45 知识点已掌握
 
 ## Domain Summary
@@ -8,7 +8,7 @@
 | 知识域 | 子知识点 | 已掌握 | 已学习 | 平均分 | 状态 |
 |--------|----------|--------|--------|--------|------|
 | D1 RAG Pipeline 整体架构 | 5 | 4/5 | 5/5 | 7.1 | 🔶 学习中 |
-| D2 Ingestion Pipeline | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
+| D2 Ingestion Pipeline | 5 | 0/5 | 1/5 | 6 | 🔶 学习中 |
 | D3 Hybrid Search & Retrieval | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
 | D4 Rerank 机制 | 4 | 0/4 | 0/4 | - | ⬜ 未学习 |
 | D5 MCP Server 协议 | 4 | 0/4 | 0/4 | - | ⬜ 未学习 |
@@ -34,7 +34,7 @@
 
 | ID | 知识点 | 已学 | 最高分 | 最近分 | 状态 |
 |----|--------|------|--------|--------|------|
-| D2.1 | Pipeline 整体流程 | 0 | - | - | ⬜ 未学习 |
+| D2.1 | Pipeline 整体流程 | 1 | 6 | 6 | 🔶 学习中 |
 | D2.2 | Chunking 策略 | 0 | - | - | ⬜ 未学习 |
 | D2.3 | Transform 链 | 0 | - | - | ⬜ 未学习 |
 | D2.4 | Embedding 编码 | 0 | - | - | ⬜ 未学习 |
@@ -124,8 +124,9 @@
 | 3 | 2026-04-10 | D1.3 | Pipeline 组装 | settings.yaml、load_settings、工厂组装、retrieval vs ingestion | 8 | 1 | 无显著薄弱项 |
 | 4 | 2026-04-10 | D1.4 | 核心数据类型 | Document/Chunk/ChunkRecord/ProcessedQuery/RetrievalResult | 5.5 | 1 | Document/Chunk 角色与 metadata 必填 source_path |
 | 5 | 2026-04-10 | D1.5 | 入口脚本设计 | ingest / query / evaluate 参数与退出码 | 7 | 0 | 以讲解为主；可自行重做 D1.5 自测题巩固 |
+| 6 | 2026-04-11 | D2.1 | Pipeline 整体流程 | IngestionPipeline 六阶段、force/skip、BM25 与 vector id 对齐 | 6 | 0 | 讲义完成；待下方自测作答后更新评分 |
 
 ## 备注
 
 - 进度文件路径：`.github/skills/project-learner/references/LEARNING_PROGRESS.md`；换设备后请通过 **Git pull** 或同步整个仓库以延续进度。
-- 建议下一步：**复习 D1.4**（`src/core/types.py`）或开始 **D2.1 Ingestion 整体流程**。
+- 建议下一步：**完成 D2.1 自测题** 后发回答以便上调评分；或继续 **D2.2 Chunking 策略**（`src/ingestion/chunking/`）。
