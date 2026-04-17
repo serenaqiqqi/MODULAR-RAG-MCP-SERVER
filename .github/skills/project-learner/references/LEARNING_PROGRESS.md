@@ -1,7 +1,7 @@
 # 📚 Project Learning Progress
 
-> Last updated: 2026-04-16
-> 总进度: 9/45 知识点已掌握
+> Last updated: 2026-04-17
+> 总进度: 10/45 知识点已掌握
 
 ## Domain Summary
 
@@ -9,7 +9,7 @@
 |--------|----------|--------|--------|--------|------|
 | D1 RAG Pipeline 整体架构 | 5 | 4/5 | 5/5 | 7.3 | 🔶 学习中 |
 | D2 Ingestion Pipeline | 5 | 1/5 | 2/5 | 7.0 | 🔶 学习中 |
-| D3 Hybrid Search & Retrieval | 5 | 4/5 | 4/5 | 7.0 | 🔶 学习中 |
+| D3 Hybrid Search & Retrieval | 5 | 5/5 | 5/5 | 7.0 | ✅ 掌握 |
 | D4 Rerank 机制 | 4 | 0/4 | 1/4 | 6.0 | 🔶 学习中 |
 | D5 MCP Server 协议 | 4 | 0/4 | 1/4 | 6.5 | 🔶 学习中 |
 | D6 可插拔架构 & 配置系统 | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
@@ -48,7 +48,7 @@
 | D3.2 | Sparse Retrieval | 1 | 7 | 7 | ✅ 掌握 |
 | D3.3 | Hybrid Search 融合 | 1 | 7 | 7 | ✅ 掌握 |
 | D3.4 | QueryProcessor | 1 | 7 | 7 | ✅ 掌握 |
-| D3.5 | Response 构建 | 0 | - | - | ⬜ 未学习 |
+| D3.5 | Response 构建 | 1 | 7 | 7 | ✅ 掌握 |
 
 ### D4 Rerank 机制
 
@@ -134,10 +134,11 @@
 | 13 | 2026-04-16 | D3.2 | Sparse Retrieval | BM25Indexer.query、SparseRetriever 与 `get_by_ids` | 7 | 0 | 含于查询链路讲义 |
 | 14 | 2026-04-16 | D3.3 | Hybrid Search 融合 | `_run_retrievals`、RRF、fallback、metadata 后置过滤 | 7 | 0 | 含于查询链路讲义 |
 | 15 | 2026-04-16 | D4.4 | Rerank Pipeline 集成 | `_run_query` 中可选 `reranker.rerank` 与 `--no-rerank` | 6 | 0 | 仅脚本层串联；未深入 reranker 实现 |
+| 16 | 2026-04-17 | D3.5 | Response 构建 | ResponseBuilder / CitationGenerator / MultimodalAssembler、`query_knowledge_hub` 与 `MCPToolResponse` | 7 | 0 | 讲义；区分「检索片段展示」与独立 LLM 作答 |
 
 ## 备注
 
 - 进度文件路径：`.github/skills/project-learner/references/LEARNING_PROGRESS.md`；换设备后请通过 **Git pull** 或同步整个仓库以延续进度。
 - **D2.1 参考文档**：仓库根目录 [`docs/INGESTION_PIPELINE_LOAD_TO_STORAGE.md`](../../../../docs/INGESTION_PIPELINE_LOAD_TO_STORAGE.md)（从 Load 到 Storage 的实例与落盘说明）。
-- **Query 链路**：本次为聊天内讲义，尚未单独落盘为 `docs/` 文件；可选自行整理或后续再生成 `docs/QUERY_PIPELINE.md`。
-- 建议下一步：**D3.5 Response 构建**（`src/core/response/`）或 **D4.1–D4.3 Rerank 实现**；巩固 **D1.4** 至 ✅。
+- **D3 域**已全部子主题至少一轮学习；**D3.5** 见 `src/core/response/` 与 `query_knowledge_hub.py` 中 `ResponseBuilder.build`。
+- 建议下一步：**D4.1 Reranker 抽象与工厂** 或 **D2.2 Chunking**；巩固 **D1.4**。
