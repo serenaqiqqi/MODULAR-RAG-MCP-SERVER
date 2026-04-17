@@ -1,17 +1,17 @@
 # 📚 Project Learning Progress
 
 > Last updated: 2026-04-17
-> 总进度: 10/45 知识点已掌握
+> 总进度: 16/45 知识点已掌握
 
 ## Domain Summary
 
 | 知识域 | 子知识点 | 已掌握 | 已学习 | 平均分 | 状态 |
 |--------|----------|--------|--------|--------|------|
-| D1 RAG Pipeline 整体架构 | 5 | 4/5 | 5/5 | 7.3 | 🔶 学习中 |
+| D1 RAG Pipeline 整体架构 | 5 | 5/5 | 5/5 | 7.6 | ✅ 掌握 |
 | D2 Ingestion Pipeline | 5 | 1/5 | 2/5 | 7.0 | 🔶 学习中 |
 | D3 Hybrid Search & Retrieval | 5 | 5/5 | 5/5 | 7.0 | ✅ 掌握 |
-| D4 Rerank 机制 | 4 | 0/4 | 1/4 | 6.0 | 🔶 学习中 |
-| D5 MCP Server 协议 | 4 | 0/4 | 1/4 | 6.5 | 🔶 学习中 |
+| D4 Rerank 机制 | 4 | 4/4 | 4/4 | 7.75 | ✅ 掌握 |
+| D5 MCP Server 协议 | 4 | 1/4 | 2/4 | 7.0 | 🔶 学习中 |
 | D6 可插拔架构 & 配置系统 | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
 | D7 多模态处理 | 4 | 0/4 | 0/4 | - | ⬜ 未学习 |
 | D8 可观测性 & 评估体系 | 5 | 0/5 | 0/5 | - | ⬜ 未学习 |
@@ -27,7 +27,7 @@
 | D1.1 | 端到端数据流 | 1 | 7.5 | 7.5 | ✅ 掌握 |
 | D1.2 | 三层架构设计 | 1 | 7.5 | 7.5 | ✅ 掌握 |
 | D1.3 | Pipeline 组装 | 1 | 8 | 8 | ✅ 掌握 |
-| D1.4 | 核心数据类型 | 2 | 6.5 | 6.5 | 🔶 学习中 |
+| D1.4 | 核心数据类型 | 3 | 8 | 8 | ✅ 掌握 |
 | D1.5 | 入口脚本设计 | 1 | 7 | 7 | ✅ 掌握 |
 
 ### D2 Ingestion Pipeline
@@ -54,17 +54,17 @@
 
 | ID | 知识点 | 已学 | 最高分 | 最近分 | 状态 |
 |----|--------|------|--------|--------|------|
-| D4.1 | Reranker 抽象与工厂模式 | 0 | - | - | ⬜ 未学习 |
-| D4.2 | CrossEncoder Reranker | 0 | - | - | ⬜ 未学习 |
-| D4.3 | LLM Reranker | 0 | - | - | ⬜ 未学习 |
-| D4.4 | Rerank Pipeline 集成 | 1 | 6 | 6 | 🔶 学习中 |
+| D4.1 | Reranker 抽象与工厂模式 | 1 | 7.5 | 7.5 | ✅ 掌握 |
+| D4.2 | CrossEncoder Reranker | 1 | 8 | 8 | ✅ 掌握 |
+| D4.3 | LLM Reranker | 1 | 7.5 | 7.5 | ✅ 掌握 |
+| D4.4 | Rerank Pipeline 集成 | 2 | 8 | 8 | ✅ 掌握 |
 
 ### D5 MCP Server 协议
 
 | ID | 知识点 | 已学 | 最高分 | 最近分 | 状态 |
 |----|--------|------|--------|--------|------|
 | D5.1 | MCP 协议概述 | 1 | 6.5 | 6.5 | 🔶 学习中 |
-| D5.2 | Tool 注册机制 | 0 | - | - | ⬜ 未学习 |
+| D5.2 | Tool 注册机制 | 1 | 7.5 | 7.5 | ✅ 掌握 |
 | D5.3 | ProtocolHandler | 0 | - | - | ⬜ 未学习 |
 | D5.4 | Server 生命周期 | 0 | - | - | ⬜ 未学习 |
 
@@ -135,10 +135,15 @@
 | 14 | 2026-04-16 | D3.3 | Hybrid Search 融合 | `_run_retrievals`、RRF、fallback、metadata 后置过滤 | 7 | 0 | 含于查询链路讲义 |
 | 15 | 2026-04-16 | D4.4 | Rerank Pipeline 集成 | `_run_query` 中可选 `reranker.rerank` 与 `--no-rerank` | 6 | 0 | 仅脚本层串联；未深入 reranker 实现 |
 | 16 | 2026-04-17 | D3.5 | Response 构建 | ResponseBuilder / CitationGenerator / MultimodalAssembler、`query_knowledge_hub` 与 `MCPToolResponse` | 7 | 0 | 讲义；区分「检索片段展示」与独立 LLM 作答 |
+| 17 | 2026-04-17 | D1.4 | 核心数据类型 | Chunk vs ChunkRecord vs RetrievalResult；检索结果是否含向量 | 8 | 多轮 | 已纠正「RetrievalResult 含向量」误解 |
+| 18 | 2026-04-17 | D4.4 | Rerank Pipeline 集成 | `initial_top_k=2*top_k`、CoreReranker 与 `_apply_rerank` fallback、`original_score` / `rerank_score` | 8 | 多轮 | 无 |
+| 19 | 2026-04-17 | D4.1 | Reranker 抽象与工厂模式 | `BaseReranker` 入参出参、`NoneReranker` 与工厂关闭路径、与 hybrid 边界 | 7.5 | 多轮 | 出参未必含 `rerank_score`（仅具体实现保证） |
+| 20 | 2026-04-17 | D4.2 | CrossEncoder Reranker | `predict(pairs)`、candidate 字典 `id`/`text`、`rerank_score` 写入 | 8 | 1 | 已澄清键名为 `id` 非 `chunk_id` |
+| 21 | 2026-04-17 | D4.3 | LLM Reranker | `config/prompts/rerank.txt`、`prompt_path`/`llm` 注入、JSON 数组 `passage_id`+`score`、markdown 剥离 | 7.5 | 0 | 讲义为主 |
+| 22 | 2026-04-17 | D5.2 | Tool 注册机制 | `ToolDefinition`/`handler`、同名 `ValueError`、`types.Tool.inputSchema` | 7.5 | 0 | 讲义为主 |
 
 ## 备注
 
 - 进度文件路径：`.github/skills/project-learner/references/LEARNING_PROGRESS.md`；换设备后请通过 **Git pull** 或同步整个仓库以延续进度。
 - **D2.1 参考文档**：仓库根目录 [`docs/INGESTION_PIPELINE_LOAD_TO_STORAGE.md`](../../../../docs/INGESTION_PIPELINE_LOAD_TO_STORAGE.md)（从 Load 到 Storage 的实例与落盘说明）。
-- **D3 域**已全部子主题至少一轮学习；**D3.5** 见 `src/core/response/` 与 `query_knowledge_hub.py` 中 `ResponseBuilder.build`。
-- 建议下一步：**D4.1 Reranker 抽象与工厂** 或 **D2.2 Chunking**；巩固 **D1.4**。
+- **D1**、**D3**、**D4** 全域子主题均已达到掌握线（≥7）；**D5** 已完成 **D5.2**，建议下一步：**D5.3 ProtocolHandler**（与 D5.2 衔接）、**D5.1 自测巩固**，或 **D2.2 Chunking** / **D6 Settings 与工厂全景**。
