@@ -10,6 +10,59 @@ Usage via MCP:
         - query (string, required): The search query
         - top_k (integer, optional): Number of results to return (default: 5)
         - collection (string, optional): Limit search to specific collection
+1. TOOL_NAME / TOOL_DESCRIPTION / TOOL_INPUT_SCHEMA
+   ↓
+   告诉 MCP Client：这个工具叫什么、干什么、需要什么参数
+
+2. QueryKnowledgeHubConfig
+   ↓
+   定义默认 top_k、最大 top_k、默认 collection、是否 rerank
+
+3. QueryKnowledgeHubTool
+   ↓
+   真正执行查询的核心类
+
+4. _tool_instance + get_tool_instance()
+   ↓
+   缓存一个工具实例，避免每次调用都重新创建
+
+5. query_knowledge_hub_handler()
+   ↓
+   ProtocolHandler 最终会调用这个函数
+
+6. register_tool(protocol_handler)
+   ↓
+   把当前工具注册进 protocol_handler
+
+┌────────────────────────────────────────────┐
+│ query_knowledge_hub.py                      │
+│                                            │
+│  1. 工具声明                                │
+│     TOOL_NAME                               │
+│     TOOL_DESCRIPTION                        │
+│     TOOL_INPUT_SCHEMA                       │
+│                                            │
+│  2. 工具配置                                │
+│     QueryKnowledgeHubConfig                 │
+│                                            │
+│  3. 工具执行核心                            │
+│     QueryKnowledgeHubTool                   │
+│       ├─ settings                           │
+│       ├─ _ensure_initialized()              │
+│       ├─ execute()                          │
+│       ├─ _perform_search()                  │
+│       ├─ _apply_rerank()                    │
+│       └─ _build_error_response()            │
+│                                            │
+│  4. 单例实例                                │
+│     get_tool_instance()                     │
+│                                            │
+│  5. MCP handler                             │
+│     query_knowledge_hub_handler()           │
+│                                            │
+│  6. 注册函数                                │
+│     register_tool()                         │
+└────────────────────────────────────────────┘
 """
 
 from __future__ import annotations
